@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Patient Reports{% endblock %}
+{% block page_title %}Reports - {{ patient.full_name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    {% if not user.is_patient %}
+    <a href="{% url 'reports:upload_report' patient.pk %}" class="btn btn-primary"><i class="bi bi-upload"></i> Upload Report</a>
+    {% endif %}
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Critical</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.title }}</td>
+                        <td>{{ report.get_report_type_display }}</td>
+                        <td>{{ report.report_date }}</td>
+                        <td>{% if report.is_critical %}<span class="badge bg-danger">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                        <td>
+                            <a href="{% url 'reports:report_detail' report.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            <a href="{{ report.file.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-download"></i></a>
+                            {% if not user.is_patient %}
+                            <a href="{% url 'reports:edit_report' report.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'reports:delete_report' report.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-muted">No reports</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

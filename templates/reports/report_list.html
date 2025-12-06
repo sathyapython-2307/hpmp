@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Medical Reports{% endblock %}
+{% block page_title %}Medical Reports{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="?type=lab" class="btn btn-outline-primary">Lab</a>
+    <a href="?type=prescription" class="btn btn-outline-success">Prescription</a>
+    <a href="?type=scan" class="btn btn-outline-info">Scan</a>
+    <a href="?" class="btn btn-outline-secondary">All</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Patient</th><th>Title</th><th>Type</th><th>Date</th><th>Critical</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.patient.full_name }}</td>
+                        <td>{{ report.title }}</td>
+                        <td>{{ report.get_report_type_display }}</td>
+                        <td>{{ report.report_date }}</td>
+                        <td>{% if report.is_critical %}<span class="badge bg-danger">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                        <td>
+                            <a href="{% url 'reports:report_detail' report.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            <a href="{{ report.file.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-download"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-muted">No reports</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

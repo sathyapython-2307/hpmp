@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>All Users</span>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Add User</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Username</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.get_full_name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td><span class="badge bg-{% if u.role == 'admin' %}danger{% elif u.role == 'doctor' %}primary{% elif u.role == 'nurse' %}info{% elif u.role == 'receptionist' %}warning{% else %}secondary{% endif %}">{{ u.get_role_display }}</span></td>
+                        <td><span class="badge bg-{% if u.is_active %}success{% else %}secondary{% endif %}">{% if u.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+                        <td>
+                            <a href="{% url 'accounts:user_detail' u.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'accounts:user_delete' u.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Patient Details{% endblock %}
+{% block page_title %}Patient: {{ patient.full_name }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Patient Information</span>
+                {% if not user.is_patient %}
+                <a href="{% url 'patients:patient_edit' patient.pk %}" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> {{ patient.patient_id }}</p>
+                <p><strong>Name:</strong> {{ patient.full_name }}</p>
+                <p><strong>DOB:</strong> {{ patient.date_of_birth }}</p>
+                <p><strong>Gender:</strong> {{ patient.get_gender_display }}</p>
+                <p><strong>Blood Group:</strong> {{ patient.blood_group|default:"-" }}</p>
+                <p><strong>Phone:</strong> {{ patient.phone }}</p>
+                <p><strong>Email:</strong> {{ patient.email|default:"-" }}</p>
+                <p><strong>Address:</strong> {{ patient.address }}</p>
+                <p><strong>Emergency Contact:</strong> {{ patient.emergency_contact_name }} ({{ patient.emergency_contact_phone }})</p>
+                <p><strong>Doctor:</strong> {% if patient.assigned_doctor %}Dr. {{ patient.assigned_doctor.get_full_name }}{% else %}-{% endif %}</p>
+                <p><strong>Status:</strong> <span class="badge bg-{% if patient.status == 'critical' %}danger{% elif patient.status == 'active' %}success{% else %}secondary{% endif %}">{{ patient.get_status_display }}</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-lightning me-2"></i>Quick Actions</div>
+            <div class="card-body">
+                <a href="{% url 'vitals:patient_vitals' patient.pk %}" class="btn btn-info me-2"><i class="bi bi-activity"></i> Vitals</a>
+                <a href="{% url 'medications:patient_medications' patient.pk %}" class="btn btn-success me-2"><i class="bi bi-capsule"></i> Medications</a>
+                <a href="{% url 'reports:patient_reports' patient.pk %}" class="btn btn-primary me-2"><i class="bi bi-file-medical"></i> Reports</a>
+                <a href="{% url 'vitals:vitals_chart' patient.pk %}" class="btn btn-secondary"><i class="bi bi-graph-up"></i> Charts</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-earmark me-2"></i>Medical Files</span>
+                {% if not user.is_patient %}
+                <a href="{% url 'patients:upload_medical_file' patient.pk %}" class="btn btn-primary btn-sm"><i class="bi bi-upload"></i></a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% for file in patient.medical_files.all %}
+                <div class="d-flex justify-content-between border-bottom py-2">
+                    <a href="{{ file.file.url }}" target="_blank">{{ file.title }}</a>
+                    <small class="text-muted">{{ file.uploaded_at|date:"M d, Y" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No files uploaded</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

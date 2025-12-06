@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Nurse Dashboard{% endblock %}
+{% block page_title %}Nurse Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card text-white" style="background: linear-gradient(135deg, #02c39a 0%, #01a884 100%);">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Patients</h6>
+                    <h2 class="mb-0">{{ patients.count }}</h2>
+                </div>
+                <i class="bi bi-people stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card text-dark" style="background: linear-gradient(135deg, #f0f3bd 0%, #e8eb9f 100%);">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Pending Medications</h6>
+                    <h2 class="mb-0">{{ pending_medications.count }}</h2>
+                </div>
+                <i class="bi bi-capsule stat-icon" style="color: #02c39a;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card bg-danger text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Active Alerts</h6>
+                    <h2 class="mb-0">{{ active_alerts.count }}</h2>
+                </div>
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-capsule me-2"></i>Pending Medications</div>
+            <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                {% for med in pending_medications %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                    <div>
+                        <strong>{{ med.patient.full_name }}</strong><br>
+                        <small>{{ med.medicine_name }} - {{ med.dosage }}</small>
+                    </div>
+                    <form method="post" action="{% url 'medications:mark_taken' med.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-sm"><i class="bi bi-check"></i> Mark Taken</button>
+                    </form>
+                </div>
+                {% empty %}
+                <p class="text-muted">No pending medications</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-exclamation-triangle me-2"></i>Active Alerts</div>
+            <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                {% for alert in active_alerts %}
+                <div class="alert alert-{{ alert.severity }} mb-2">
+                    <strong>{{ alert.patient.full_name }}</strong><br>
+                    <small>{{ alert.message }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No active alerts</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-activity me-2"></i>Recent Vitals</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead><tr><th>Patient</th><th>HR</th><th>BP</th><th>Temp</th><th>SpO2</th><th>Time</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {% for vital in recent_vitals %}
+                            <tr>
+                                <td>{{ vital.patient.full_name }}</td>
+                                <td>{{ vital.heart_rate }}</td>
+                                <td>{{ vital.bp_display }}</td>
+                                <td>{{ vital.temperature }}°F</td>
+                                <td>{{ vital.spo2 }}%</td>
+                                <td>{{ vital.recorded_at|timesince }} ago</td>
+                                <td><a href="{% url 'vitals:add_vital' vital.patient.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-plus"></i> Add</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="text-muted">No recent vitals</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

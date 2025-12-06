@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'appointments:create_appointment' %}" class="btn btn-primary"><i class="bi bi-plus"></i> New Appointment</a>
+    <a href="?status=pending" class="btn btn-outline-warning">Pending</a>
+    <a href="?status=approved" class="btn btn-outline-success">Approved</a>
+    <a href="?" class="btn btn-outline-secondary">All</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for apt in appointments %}
+                    <tr>
+                        <td>{{ apt.patient.full_name }}</td>
+                        <td>Dr. {{ apt.doctor.get_full_name }}</td>
+                        <td>{{ apt.appointment_date }}</td>
+                        <td>{{ apt.appointment_time }}</td>
+                        <td>{{ apt.get_appointment_type_display }}</td>
+                        <td><span class="badge bg-{% if apt.status == 'approved' %}success{% elif apt.status == 'pending' %}warning{% elif apt.status == 'rejected' %}danger{% elif apt.status == 'completed' %}info{% else %}secondary{% endif %}">{{ apt.get_status_display }}</span></td>
+                        <td>
+                            <a href="{% url 'appointments:appointment_detail' apt.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            {% if apt.status == 'pending' and user.is_doctor %}
+                            <form method="post" action="{% url 'appointments:approve_appointment' apt.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success"><i class="bi bi-check"></i></button></form>
+                            <form method="post" action="{% url 'appointments:reject_appointment' apt.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-danger"><i class="bi bi-x"></i></button></form>
+                            {% endif %}
+                            {% if apt.status == 'approved' and user.is_doctor %}
+                            <form method="post" action="{% url 'appointments:complete_appointment' apt.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-info"><i class="bi bi-check-all"></i></button></form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-muted">No appointments</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

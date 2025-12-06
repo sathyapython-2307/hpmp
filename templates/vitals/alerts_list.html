@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Vital Alerts{% endblock %}
+{% block page_title %}Vital Alerts{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Patient</th><th>Parameter</th><th>Value</th><th>Normal</th><th>Severity</th><th>Status</th><th>Time</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr class="{% if not alert.is_resolved %}table-{% if alert.severity == 'critical' %}danger{% elif alert.severity == 'high' %}warning{% else %}info{% endif %}{% endif %}">
+                        <td>{{ alert.patient.full_name }}</td>
+                        <td>{{ alert.parameter }}</td>
+                        <td>{{ alert.value }}</td>
+                        <td>{{ alert.normal_range }}</td>
+                        <td><span class="badge bg-{% if alert.severity == 'critical' %}danger{% elif alert.severity == 'high' %}warning{% else %}info{% endif %}">{{ alert.get_severity_display }}</span></td>
+                        <td><span class="badge bg-{% if alert.is_resolved %}success{% else %}danger{% endif %}">{% if alert.is_resolved %}Resolved{% else %}Active{% endif %}</span></td>
+                        <td>{{ alert.created_at|timesince }} ago</td>
+                        <td>
+                            {% if not alert.is_resolved and not user.is_patient %}
+                            <form method="post" action="{% url 'vitals:resolve_alert' alert.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Resolve</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-muted">No alerts</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

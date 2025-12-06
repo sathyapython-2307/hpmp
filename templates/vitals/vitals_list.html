@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Vitals{% endblock %}
+{% block page_title %}Vital Signs{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Patient</th><th>HR</th><th>BP</th><th>Temp</th><th>SpO2</th><th>Glucose</th><th>Resp</th><th>Time</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for vital in vitals %}
+                    <tr>
+                        <td>{{ vital.patient.full_name }}</td>
+                        <td>{{ vital.heart_rate }} bpm</td>
+                        <td>{{ vital.bp_display }}</td>
+                        <td>{{ vital.temperature }}°F</td>
+                        <td>{{ vital.spo2 }}%</td>
+                        <td>{{ vital.glucose|default:"-" }}</td>
+                        <td>{{ vital.respiration_rate|default:"-" }}</td>
+                        <td>{{ vital.recorded_at|timesince }} ago</td>
+                        <td>
+                            <a href="{% url 'vitals:patient_vitals' vital.patient.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'vitals:vitals_chart' vital.patient.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-graph-up"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="9" class="text-muted">No vitals recorded</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

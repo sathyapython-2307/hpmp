@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Patient Vitals{% endblock %}
+{% block page_title %}Vitals - {{ patient.full_name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    {% if not user.is_patient %}
+    <a href="{% url 'vitals:add_vital' patient.pk %}" class="btn btn-primary"><i class="bi bi-plus"></i> Record Vitals</a>
+    {% endif %}
+    <a href="{% url 'vitals:vitals_chart' patient.pk %}" class="btn btn-info"><i class="bi bi-graph-up"></i> View Charts</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>HR</th><th>BP</th><th>Temp</th><th>SpO2</th><th>Glucose</th><th>Resp</th><th>Recorded By</th><th>Time</th></tr></thead>
+                <tbody>
+                    {% for vital in vitals %}
+                    <tr>
+                        <td>{{ vital.heart_rate }} bpm</td>
+                        <td>{{ vital.bp_display }}</td>
+                        <td>{{ vital.temperature }}°F</td>
+                        <td>{{ vital.spo2 }}%</td>
+                        <td>{{ vital.glucose|default:"-" }}</td>
+                        <td>{{ vital.respiration_rate|default:"-" }}</td>
+                        <td>{{ vital.recorded_by.get_full_name|default:"-" }}</td>
+                        <td>{{ vital.recorded_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-muted">No vitals recorded</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

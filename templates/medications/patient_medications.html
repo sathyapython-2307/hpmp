@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Patient Medications{% endblock %}
+{% block page_title %}Medications - {{ patient.full_name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+    {% if user.is_doctor or user.is_admin %}
+    <a href="{% url 'medications:add_medication' patient.pk %}" class="btn btn-primary"><i class="bi bi-plus"></i> Prescribe</a>
+    <a href="{% url 'medications:add_treatment' patient.pk %}" class="btn btn-info"><i class="bi bi-plus"></i> Add Treatment</a>
+    {% endif %}
+</div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Medications</div>
+            <div class="card-body">
+                {% for med in medications %}
+                <div class="border-bottom py-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ med.medicine_name }}</strong>
+                        <span class="badge bg-{% if med.status == 'active' %}success{% else %}secondary{% endif %}">{{ med.get_status_display }}</span>
+                    </div>
+                    <small>{{ med.dosage }} - {{ med.get_frequency_display }}</small><br>
+                    <small class="text-muted">{{ med.start_date }} {% if med.end_date %}to {{ med.end_date }}{% endif %}</small>
+                    <div class="mt-2">
+                        {% if not med.is_taken and not user.is_patient %}
+                        <form method="post" action="{% url 'medications:mark_taken' med.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Mark Taken</button>
+                        </form>
+                        {% endif %}
+                        {% if user.is_doctor or user.is_admin %}
+                        <a href="{% url 'medications:edit_medication' med.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No medications</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Treatments</div>
+            <div class="card-body">
+                {% for t in treatments %}
+                <div class="border-bottom py-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ t.treatment_name }}</strong>
+                        <span class="badge bg-{% if t.status == 'completed' %}success{% elif t.status == 'in_progress' %}info{% else %}secondary{% endif %}">{{ t.get_status_display }}</span>
+                    </div>
+                    <small>{{ t.description|truncatewords:15 }}</small><br>
+                    <small class="text-muted">{{ t.scheduled_date }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No treatments</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

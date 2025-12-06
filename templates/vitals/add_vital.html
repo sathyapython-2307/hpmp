@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Record Vitals{% endblock %}
+{% block page_title %}Record Vitals - {{ patient.full_name }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Vitals</button>
+            <a href="{% url 'vitals:patient_vitals' patient.pk %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
