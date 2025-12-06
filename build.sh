@@ -10,5 +10,4 @@ python manage.py migrate --no-input
 echo "Collecting static files..."
 python manage.py collectstatic --no-input
 
-echo "Creating sample data..."
-python setup_data.py || echo "Sample data creation skipped or already exists"
+echo "Build completed successfully!"
