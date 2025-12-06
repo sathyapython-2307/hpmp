@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 set -o errexit
 
+echo "Installing dependencies..."
 pip install -r requirements.txt
 
-python manage.py collectstatic --no-input
-python manage.py migrate
+echo "Running migrations..."
+python manage.py makemigrations accounts --no-input
+python manage.py makemigrations patients --no-input
+python manage.py makemigrations vitals --no-input
+python manage.py makemigrations medications --no-input
+python manage.py makemigrations appointments --no-input
+python manage.py makemigrations reports --no-input
+python manage.py makemigrations notifications --no-input
+python manage.py migrate --no-input
 
-# Create sample data if database is empty
-python -c "
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'healthcare_portal.settings')
-import django
-django.setup()
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.exists():
-    exec(open('setup_data.py').read())
-    print('Sample data created!')
-else:
-    print('Database already has data, skipping setup.')
-"
+echo "Collecting static files..."
+python manage.py collectstatic --no-input
+
+echo "Creating sample data..."
+python setup_data.py
